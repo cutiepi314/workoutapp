@@ -59,8 +59,53 @@
   .streak-text { display: flex; flex-direction: column; gap: 2px; }
   .streak-text .big { font-family: 'Fredoka', sans-serif; font-size: 15.5px; font-weight: 600; }
   .streak-text .small { font-size: 11.5px; opacity: 0.85; }
+  .streak-text .motivate { opacity: 0.95; font-weight: 600; color: #FFE7BD; min-height: 14px; display: block; }
+
+  @keyframes popIn {
+    0% { transform: scale(0.85); opacity: 0.4; }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); opacity: 0.95; }
+  }
+
+  .week-dots {
+    display: flex; gap: 7px; margin-top: 16px; align-items: center;
+  }
+  .week-dots .wd-label { font-size: 10.5px; opacity: 0.75; margin-right: 4px; }
+  .week-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.6);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    transition: all 0.3s ease;
+  }
+  .week-dot.filled { background: var(--ochre); border-color: var(--ochre); color: #fff; }
+  .week-dot.today { box-shadow: 0 0 0 2px rgba(255,255,255,0.6); }
 
   main { padding: 18px 16px 0; max-width: 480px; margin: 0 auto; }
+
+  @media (min-width: 860px) {
+    body { padding-bottom: 80px; }
+    header {
+      max-width: 1040px; margin: 0 auto; border-radius: 24px; margin-top: 20px;
+      padding: 34px 40px 28px;
+    }
+    header .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+    header h1 { font-size: 28px; }
+    header p { font-size: 14px; max-width: 44ch; }
+    .streak-row { margin-top: 0; min-width: 260px; }
+    main { max-width: 1040px; padding: 28px 24px 0; }
+    .bodymap-card { padding: 22px 26px; }
+    .bodymap-card svg { width: 120px; }
+    #listRoot { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; align-content: start; }
+    #listRoot .day-label { grid-column: 1 / -1; }
+    #listRoot .card { align-self: start; }
+    .generate-row { max-width: 420px; }
+  }
+
+  @media (min-width: 1180px) {
+    #listRoot { grid-template-columns: 1fr 1fr 1fr; }
+  }
 
   /* Body map section */
   .bodymap-card {
@@ -74,10 +119,10 @@
     margin-bottom: 18px;
   }
   .bodymap-card svg { width: 92px; flex-shrink: 0; }
-  .zone { fill: var(--zone-off); transition: fill 0.35s ease; }
-  .zone.active { fill: var(--zone-on); }
+  /* zone styles consolidated below */
   .bodymap-legend { flex: 1; }
-  .bodymap-legend h3 { font-family: 'Fredoka', sans-serif; font-size: 13.5px; margin-bottom: 8px; }
+  .bodymap-legend h3 { font-family: 'Fredoka', sans-serif; font-size: 13.5px; margin-bottom: 4px; }
+  .chip-hint { font-size: 10.5px; color: var(--ink-soft); margin-bottom: 8px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip {
     font-size: 10.5px;
@@ -86,8 +131,14 @@
     background: var(--zone-off);
     color: var(--ink-soft);
     transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
   }
   .chip.active { background: var(--zone-on); color: #fff; }
+  .chip.selected { border-color: var(--teal); box-shadow: 0 0 0 2px rgba(63,117,102,0.15); }
+  .zone { fill: var(--zone-off); transition: fill 0.35s ease; cursor: pointer; }
+  .zone.active { fill: var(--zone-on); }
+  .zone.selected { stroke: var(--teal); stroke-width: 3; }
 
   /* Filter pills */
   .filters {
@@ -155,6 +206,16 @@
   }
   .day-label h2 { font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 600; }
   .day-label .count { margin-left: auto; font-size: 12px; color: var(--ink-soft); }
+  .clear-link { cursor: pointer; font-weight: 600; color: var(--teal-deep) !important; }
+
+  .celebrate-toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+    background: var(--teal-deep); color: #fff; padding: 12px 20px; border-radius: 999px;
+    font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    opacity: 0; pointer-events: none; transition: all 0.4s ease; z-index: 50;
+  }
+  .celebrate-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   .card {
     background: var(--card); border: 1px solid var(--line); border-radius: 18px;
@@ -222,19 +283,25 @@
 <body>
 
 <header>
-  <h1>Your Home Routine</h1>
-  <p>Chair, wall, and floor-optional moves. Tap a filter to browse, tap a card to check it off.</p>
-  <div class="streak-row">
-    <svg class="ring" viewBox="0 0 52 52">
-      <circle cx="26" cy="26" r="21" stroke="rgba(255,255,255,0.25)" stroke-width="5" fill="none"/>
-      <circle id="ringProgress" cx="26" cy="26" r="21" stroke="#E0A24B" stroke-width="5" fill="none"
-        stroke-linecap="round" stroke-dasharray="132" stroke-dashoffset="132" transform="rotate(-90 26 26)"/>
-    </svg>
-    <div class="streak-text">
-      <span class="big" id="progressText">0 done today</span>
-      <span class="small" id="streakText">Loading your streak…</span>
+  <div class="header-inner">
+    <div>
+      <h1>Your Home Routine</h1>
+      <p>Chair, wall, and floor-optional moves. Tap a filter to browse, tap a card to check it off.</p>
+    </div>
+    <div class="streak-row">
+      <svg class="ring" viewBox="0 0 52 52">
+        <circle cx="26" cy="26" r="21" stroke="rgba(255,255,255,0.25)" stroke-width="5" fill="none"/>
+        <circle id="ringProgress" cx="26" cy="26" r="21" stroke="#E0A24B" stroke-width="5" fill="none"
+          stroke-linecap="round" stroke-dasharray="132" stroke-dashoffset="132" transform="rotate(-90 26 26)"/>
+      </svg>
+      <div class="streak-text">
+        <span class="big" id="progressText">0 done today</span>
+        <span class="small" id="streakText">Loading your streak…</span>
+        <span class="small motivate" id="motivateText"></span>
+      </div>
     </div>
   </div>
+  <div class="week-dots" id="weekDots"></div>
 </header>
 
 <main>
@@ -257,6 +324,7 @@
     </svg>
     <div class="bodymap-legend">
       <h3>Muscles worked today</h3>
+      <p class="chip-hint">Tap a muscle (or the body) to see exercises for it</p>
       <div class="chips" id="chipRow"></div>
     </div>
   </div>
@@ -279,6 +347,9 @@
   <footer>Aim for 3 non-consecutive strength days a week. Yoga/stretching moves are gentle enough for any day, including rest days.</footer>
 
 </main>
+
+<div class="celebrate-toast" id="celebrateToast">🎉 Workout complete — nice work!</div>
+
 
 <script>
 const S = 'stroke="#2B5347" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
@@ -433,6 +504,7 @@ const ZONE_MAP = {
 let activeFilter = 'all';
 let doneState = {};
 let suggestedIds = null; // null = not in suggested mode; array = list of exercise ids
+let muscleFilter = null; // null or a muscle key like 'core'
 
 function shuffle(arr) {
   const a = arr.slice();
@@ -447,6 +519,7 @@ function shuffle(arr) {
 const GENERATE_PLAN = { warmup: 1, lower: 2, upper: 2, core: 2, yoga: 1, cooldown: 1 };
 
 function generateWorkout() {
+  muscleFilter = null;
   const picked = [];
   Object.keys(GENERATE_PLAN).forEach(cat => {
     const pool = shuffle(EX.filter(e => e.cat === cat));
@@ -506,7 +579,7 @@ function renderFilters() {
     const btn = document.createElement('button');
     btn.className = 'filter-pill' + (c.id === activeFilter ? ' active' : '');
     btn.textContent = c.label;
-    btn.onclick = () => { activeFilter = c.id; suggestedIds = null; renderSuggestedBanner(); renderFilters(); renderList(); };
+    btn.onclick = () => { activeFilter = c.id; suggestedIds = null; muscleFilter = null; renderSuggestedBanner(); renderFilters(); renderChips(); renderZones(); renderList(); };
     row.appendChild(btn);
   });
 }
@@ -515,20 +588,39 @@ function renderChips() {
   const row = document.getElementById('chipRow');
   row.innerHTML = '';
   Object.keys(MUSCLE_LABELS).forEach(m => {
-    const active = EX.some(e => doneState[e.id] && e.muscles.includes(m));
+    const worked = EX.some(e => doneState[e.id] && e.muscles.includes(m));
     const chip = document.createElement('span');
-    chip.className = 'chip' + (active ? ' active' : '');
+    chip.className = 'chip' + (worked ? ' active' : '') + (muscleFilter === m ? ' selected' : '');
     chip.textContent = MUSCLE_LABELS[m];
+    chip.title = 'Show ' + MUSCLE_LABELS[m] + ' exercises';
+    chip.onclick = () => selectMuscleFilter(m);
     row.appendChild(chip);
   });
 }
 
+function selectMuscleFilter(m) {
+  muscleFilter = (muscleFilter === m) ? null : m;
+  suggestedIds = null;
+  activeFilter = 'all';
+  renderSuggestedBanner();
+  renderFilters();
+  renderChips();
+  renderZones();
+  renderList();
+  if (muscleFilter) {
+    document.getElementById('listRoot').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
 function renderZones() {
   Object.keys(ZONE_MAP).forEach(m => {
-    const active = EX.some(e => doneState[e.id] && e.muscles.includes(m));
+    const worked = EX.some(e => doneState[e.id] && e.muscles.includes(m));
     ZONE_MAP[m].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.classList.toggle('active', active);
+      if (!el) return;
+      el.classList.toggle('active', worked);
+      el.classList.toggle('selected', muscleFilter === m);
+      el.onclick = () => selectMuscleFilter(m);
     });
   });
 }
@@ -540,6 +632,17 @@ function renderList() {
   if (suggestedIds) {
     const items = suggestedIds.map(id => EX.find(e => e.id === id)).filter(Boolean);
     items.forEach(e => root.appendChild(buildCard(e)));
+    return;
+  }
+
+  if (muscleFilter) {
+    const items = EX.filter(e => e.muscles.includes(muscleFilter));
+    const label = document.createElement('div');
+    label.className = 'day-label';
+    label.innerHTML = `<span class="num">${items.length}</span><h2>${MUSCLE_LABELS[muscleFilter]} exercises</h2><span class="count clear-link" id="clearMuscleBtn">✕ clear</span>`;
+    root.appendChild(label);
+    items.forEach(e => root.appendChild(buildCard(e)));
+    document.getElementById('clearMuscleBtn').onclick = () => selectMuscleFilter(muscleFilter);
     return;
   }
 
@@ -592,6 +695,20 @@ function toggleExercise(id) {
   renderChips();
   renderZones();
   saveState();
+  checkCelebration();
+}
+
+function checkCelebration() {
+  if (!suggestedIds || !suggestedIds.length) return;
+  const allDone = suggestedIds.every(id => doneState[id]);
+  if (allDone) showCelebration();
+}
+
+function showCelebration() {
+  const toast = document.getElementById('celebrateToast');
+  toast.classList.add('show');
+  clearTimeout(showCelebration._t);
+  showCelebration._t = setTimeout(() => toast.classList.remove('show'), 2600);
 }
 
 const total = EX.length;
@@ -601,49 +718,91 @@ const ring = document.getElementById('ringProgress');
 const CIRC = 132;
 const todayKey = () => new Date().toISOString().slice(0,10);
 
+let lastDoneCount = 0;
+
 function updateRing() {
   const done = Object.values(doneState).filter(Boolean).length;
   const pct = done / total;
   ring.setAttribute('stroke-dashoffset', CIRC - pct * CIRC);
   progressText.textContent = done + ' done today';
+  updateMotivateText(lastDoneCount, done);
+  lastDoneCount = done;
+  renderWeekDots();
 }
 
-async function loadState() {
+function renderWeekDots() {
+  const el = document.getElementById('weekDots');
+  const days = ['S','M','T','W','T','F','S'];
+  const today = new Date();
+  const dayIdx = today.getDay(); // 0=Sun
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - dayIdx);
+
+  let html = '<span class="wd-label">This week</span>';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    const key = 'workout-day-done2:' + d.toISOString().slice(0,10);
+    const filled = localStorage.getItem(key) === 'true';
+    const isToday = d.toDateString() === today.toDateString();
+    html += `<span class="week-dot${filled ? ' filled' : ''}${isToday ? ' today' : ''}">${days[i]}</span>`;
+  }
+  el.innerHTML = html;
+}
+
+const MOTIVATE_MESSAGES = [
+  { min: 0, max: 0, text: '' },
+  { min: 1, max: 2, text: "Nice, you're moving 💪" },
+  { min: 3, max: 5, text: "Good momentum going" },
+  { min: 6, max: 8, text: "You're on a roll today 🔥" },
+  { min: 9, max: 999, text: "Incredible session — great job!" },
+];
+
+function updateMotivateText(prevDone, doneCount) {
+  const el = document.getElementById('motivateText');
+  const match = MOTIVATE_MESSAGES.find(m => doneCount >= m.min && doneCount <= m.max);
+  el.textContent = match ? match.text : '';
+  if (doneCount > prevDone && doneCount > 0) {
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = 'popIn 0.35s ease';
+  }
+}
+
+function loadState() {
   try {
-    const res = await window.storage.get('checklist2:' + todayKey());
-    doneState = res ? JSON.parse(res.value) : {};
+    const raw = localStorage.getItem('checklist2:' + todayKey());
+    doneState = raw ? JSON.parse(raw) : {};
   } catch (e) { doneState = {}; }
   renderList();
   renderChips();
   renderZones();
   updateRing();
-  await loadStreak();
+  loadStreak();
 }
 
-async function saveState() {
+function saveState() {
   try {
-    await window.storage.set('checklist2:' + todayKey(), JSON.stringify(doneState));
+    localStorage.setItem('checklist2:' + todayKey(), JSON.stringify(doneState));
   } catch (e) { console.error('save failed', e); }
   updateRing();
 
   const doneCount = Object.values(doneState).filter(Boolean).length;
   if (doneCount >= 4) {
-    try { await window.storage.set('workout-day-done2:' + todayKey(), 'true'); } catch (e) {}
+    try { localStorage.setItem('workout-day-done2:' + todayKey(), 'true'); } catch (e) {}
   }
-  await loadStreak();
+  loadStreak();
 }
 
-async function loadStreak() {
+function loadStreak() {
   try {
     let count = 0;
     const d = new Date();
     for (let i = 0; i < 14; i++) {
       const key = 'workout-day-done2:' + d.toISOString().slice(0,10);
-      try {
-        const res = await window.storage.get(key);
-        if (res && res.value === 'true') { count++; }
-        else if (i > 0) { break; }
-      } catch (e) { if (i > 0) break; }
+      const val = localStorage.getItem(key);
+      if (val === 'true') { count++; }
+      else if (i > 0) { break; }
       d.setDate(d.getDate() - 1);
     }
     if (count === 0) streakText.textContent = "Let's get your first day in";
@@ -654,10 +813,10 @@ async function loadStreak() {
   }
 }
 
-document.getElementById('resetBtn').addEventListener('click', async () => {
+document.getElementById('resetBtn').addEventListener('click', () => {
   doneState = {};
   renderList(); renderChips(); renderZones(); updateRing();
-  try { await window.storage.delete('checklist2:' + todayKey()); } catch (e) {}
+  try { localStorage.removeItem('checklist2:' + todayKey()); } catch (e) {}
 });
 
 renderFilters();
