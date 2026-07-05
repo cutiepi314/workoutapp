@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Home Routine</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #EEF3EF;
+    --card: #FFFFFF;
+    --ink: #24322C;
+    --ink-soft: #5B6E64;
+    --teal: #3F7566;
+    --teal-deep: #2B5347;
+    --ochre: #E0A24B;
+    --ochre-soft: #FBEBD2;
+    --line: #DCE6E0;
+    --done-bg: #E4F0E8;
+    --zone-off: #DDE6E1;
+    --zone-on: #C97B5C;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    padding-bottom: 60px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  header {
+    padding: 26px 20px 20px;
+    background: linear-gradient(180deg, var(--teal-deep), var(--teal));
+    color: #fff;
+    border-radius: 0 0 28px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: "";
+    position: absolute;
+    right: -30px; top: -30px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+  }
+  h1 { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 23px; letter-spacing: -0.01em; }
+  header p { margin-top: 6px; font-size: 13px; opacity: 0.88; max-width: 36ch; }
+
+  .streak-row {
+    display: flex; align-items: center; gap: 14px; margin-top: 18px;
+    background: rgba(255,255,255,0.12); border-radius: 16px; padding: 12px 15px;
+  }
+  .ring { width: 46px; height: 46px; flex-shrink: 0; }
+  .streak-text { display: flex; flex-direction: column; gap: 2px; }
+  .streak-text .big { font-family: 'Fredoka', sans-serif; font-size: 15.5px; font-weight: 600; }
+  .streak-text .small { font-size: 11.5px; opacity: 0.85; }
+
+  main { padding: 18px 16px 0; max-width: 480px; margin: 0 auto; }
+
+  /* Body map section */
+  .bodymap-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .bodymap-card svg { width: 92px; flex-shrink: 0; }
+  .zone { fill: var(--zone-off); transition: fill 0.35s ease; }
+  .zone.active { fill: var(--zone-on); }
+  .bodymap-legend { flex: 1; }
+  .bodymap-legend h3 { font-family: 'Fredoka', sans-serif; font-size: 13.5px; margin-bottom: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 10.5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--zone-off);
+    color: var(--ink-soft);
+    transition: all 0.3s ease;
+  }
+  .chip.active { background: var(--zone-on); color: #fff; }
+
+  /* Filter pills */
+  .filters {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .filter-pill {
+    flex-shrink: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .filter-pill.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+  .generate-row { margin: 4px 0 6px; }
+  .generate-btn {
+    width: 100%;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14.5px;
+    font-weight: 600;
+    padding: 13px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, var(--ochre), #D98F3A);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(224,162,75,0.35);
+  }
+  .generate-btn:active { transform: scale(0.98); }
+
+  .suggested-banner {
+    background: #FFF6E8;
+    border: 1px solid var(--ochre);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin: 12px 0 4px;
+    font-size: 12.5px;
+    color: #6B4E1E;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .suggested-banner strong { display: block; font-size: 13.5px; color: #4F3610; margin-bottom: 2px; }
+  .suggested-banner-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .mini-btn {
+    font-size: 11.5px; font-weight: 600; padding: 6px 10px; border-radius: 999px;
+    border: 1px solid var(--ochre); background: #fff; color: #6B4E1E;
+  }
+
+  .day-label { display: flex; align-items: center; gap: 10px; margin: 24px 4px 12px; }
+  .day-label .num {
+    font-family: 'Fredoka', sans-serif; font-size: 13px; color: var(--teal-deep);
+    background: var(--ochre-soft); border-radius: 999px; width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .day-label h2 { font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 600; }
+  .day-label .count { margin-left: auto; font-size: 12px; color: var(--ink-soft); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    padding: 14px; display: flex; align-items: flex-start; gap: 13px; margin-bottom: 10px;
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+    cursor: pointer; user-select: none;
+  }
+  .card:active { transform: scale(0.98); }
+  .card.done { background: var(--done-bg); border-color: #BFDBC9; }
+
+  .icon-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+
+  .icon-wrap {
+    width: 56px; height: 56px; flex-shrink: 0; background: var(--ochre-soft);
+    border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-top: 2px;
+    position: relative; cursor: pointer;
+  }
+  .card.done .icon-wrap { background: #CDE7D6; }
+  .icon-wrap svg { width: 42px; height: 42px; }
+  .icon-wrap .search-badge {
+    position: absolute; bottom: -4px; right: -4px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--teal); border: 2px solid var(--card);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .icon-wrap .search-badge svg {
+    width: 11px; height: 11px; stroke: #fff; stroke-width: 2.5; fill: none;
+  }
+  .icon-hint {
+    font-size: 9.5px; color: var(--ink-soft); text-align: center; margin-top: 3px; line-height: 1.2;
+  }
+
+  .info { flex: 1; min-width: 0; }
+  .info .name { font-weight: 600; font-size: 14.5px; margin-bottom: 3px; }
+  .info .reps { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 4px; }
+  .info .howto { font-size: 11.5px; color: var(--ink-soft); line-height: 1.4; margin-bottom: 6px; }
+  .muscle-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .muscle-chip {
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+    background: #EFE6D8; color: #8A6A2E;
+  }
+
+  .check {
+    width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line);
+    flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease;
+  }
+  .card.done .check { background: var(--teal); border-color: var(--teal); }
+  .check svg { width: 14px; height: 14px; opacity: 0; transition: opacity 0.2s ease; stroke: #fff; stroke-width: 3; fill: none; }
+  .card.done .check svg { opacity: 1; }
+
+  .tip {
+    margin: 26px 4px 8px; background: var(--ochre-soft); border-radius: 16px;
+    padding: 14px 16px; font-size: 12.5px; color: #6B4E1E; line-height: 1.5;
+  }
+  .tip strong { color: #4F3610; }
+
+  footer { text-align: center; font-size: 11.5px; color: var(--ink-soft); padding: 30px 20px 10px; }
+  .reset-btn {
+    display: block; margin: 18px auto 0; background: none; border: 1px solid var(--line);
+    color: var(--ink-soft); font-size: 12px; padding: 8px 16px; border-radius: 999px; font-family: inherit;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Your Home Routine</h1>
+  <p>Chair, wall, and floor-optional moves. Tap a filter to browse, tap a card to check it off.</p>
+  <div class="streak-row">
+    <svg class="ring" viewBox="0 0 52 52">
+      <circle cx="26" cy="26" r="21" stroke="rgba(255,255,255,0.25)" stroke-width="5" fill="none"/>
+      <circle id="ringProgress" cx="26" cy="26" r="21" stroke="#E0A24B" stroke-width="5" fill="none"
+        stroke-linecap="round" stroke-dasharray="132" stroke-dashoffset="132" transform="rotate(-90 26 26)"/>
+    </svg>
+    <div class="streak-text">
+      <span class="big" id="progressText">0 done today</span>
+      <span class="small" id="streakText">Loading your streak…</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="bodymap-card">
+    <svg viewBox="0 0 200 400">
+      <circle cx="100" cy="42" r="22" fill="#DDE6E1"/>
+      <rect x="92" y="60" width="16" height="16" fill="#DDE6E1"/>
+      <ellipse class="zone" id="z-shoulders-l" cx="68" cy="90" rx="24" ry="15"/>
+      <ellipse class="zone" id="z-shoulders-r" cx="132" cy="90" rx="24" ry="15"/>
+      <rect class="zone" id="z-chest" x="70" y="82" width="60" height="46" rx="18"/>
+      <line class="zone" id="z-arms-l" x1="52" y1="88" x2="34" y2="185" stroke="#DDE6E1" stroke-width="24" stroke-linecap="round" fill="none"/>
+      <line class="zone" id="z-arms-r" x1="148" y1="88" x2="166" y2="185" stroke="#DDE6E1" stroke-width="24" stroke-linecap="round" fill="none"/>
+      <rect class="zone" id="z-core" x="76" y="126" width="48" height="58" rx="14"/>
+      <rect class="zone" id="z-hips" x="66" y="182" width="68" height="34" rx="16"/>
+      <line class="zone" id="z-quads-l" x1="85" y1="212" x2="82" y2="288" stroke="#DDE6E1" stroke-width="26" stroke-linecap="round" fill="none"/>
+      <line class="zone" id="z-quads-r" x1="115" y1="212" x2="118" y2="288" stroke="#DDE6E1" stroke-width="26" stroke-linecap="round" fill="none"/>
+      <line class="zone" id="z-calves-l" x1="82" y1="292" x2="80" y2="360" stroke="#DDE6E1" stroke-width="18" stroke-linecap="round" fill="none"/>
+      <line class="zone" id="z-calves-r" x1="118" y1="292" x2="120" y2="360" stroke="#DDE6E1" stroke-width="18" stroke-linecap="round" fill="none"/>
+    </svg>
+    <div class="bodymap-legend">
+      <h3>Muscles worked today</h3>
+      <div class="chips" id="chipRow"></div>
+    </div>
+  </div>
+
+  <div class="filters" id="filterRow"></div>
+
+  <div class="generate-row">
+    <button class="generate-btn" id="generateBtn">🎲 Build me a balanced workout</button>
+  </div>
+
+  <div id="suggestedBanner" style="display:none;"></div>
+
+  <div id="listRoot"></div>
+
+  <div class="tip">
+    <strong>Tip:</strong> tap the small icon on any card (the search dot) to open real photos of that exercise in a new tab. The illustrations here are just a quick visual reminder of the movement.
+  </div>
+
+  <button class="reset-btn" id="resetBtn">Reset today's checklist</button>
+  <footer>Aim for 3 non-consecutive strength days a week. Yoga/stretching moves are gentle enough for any day, including rest days.</footer>
+
+</main>
+
+<script>
+const S = 'stroke="#2B5347" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+const F = 'fill="#2B5347"';
+
+const EX = [
+  // WARM-UP
+  { id:'marching', cat:'warmup', name:'Seated marching', reps:'1 minute', muscles:['quads','core'],
+    howto:'Sit tall, lift knees alternately, swing arms naturally.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="14" r="7" ${F}/><line x1="30" y1="21" x2="30" y2="38" ${S}/><line x1="30" y1="38" x2="20" y2="32" ${S}/><line x1="20" y1="32" x2="18" y2="20" ${S}/><line x1="30" y1="38" x2="44" y2="50" ${S}/><line x1="30" y1="26" x2="18" y2="18" ${S}/><line x1="30" y1="26" x2="42" y2="20" ${S}/><line x1="12" y1="52" x2="48" y2="52" stroke="#DCE6E0" stroke-width="4" stroke-linecap="round"/></svg>` },
+  { id:'armcircles', cat:'warmup', name:'Arm circles', reps:'20 seconds each direction', muscles:['shoulders'],
+    howto:'Stand or sit, extend arms out to sides, make slow circles.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="12" r="7" ${F}/><line x1="30" y1="19" x2="30" y2="42" ${S}/><line x1="30" y1="24" x2="10" y2="16" ${S}/><circle cx="10" cy="16" r="8" fill="none" stroke="#2B5347" stroke-width="3" stroke-dasharray="3 4"/><line x1="30" y1="24" x2="50" y2="16" ${S}/><circle cx="50" cy="16" r="8" fill="none" stroke="#2B5347" stroke-width="3" stroke-dasharray="3 4"/><line x1="30" y1="42" x2="20" y2="54" ${S}/><line x1="30" y1="42" x2="40" y2="54" ${S}/></svg>` },
+  { id:'anklecircles', cat:'warmup', name:'Ankle circles', reps:'10 each direction, each foot', muscles:['calves'],
+    howto:'Seated, lift one foot, rotate the ankle slowly in circles.',
+    svg:`<svg viewBox="0 0 60 60"><rect x="8" y="10" width="30" height="16" rx="6" fill="#DCE6E0"/><circle cx="42" cy="30" r="6" ${F}/><line x1="42" y1="36" x2="42" y2="42" ${S}/><circle cx="44" cy="48" r="9" fill="none" stroke="#2B5347" stroke-width="3" stroke-dasharray="3 4"/></svg>` },
+  { id:'hipcircles', cat:'warmup', name:'Standing hip circles', reps:'8 each direction', muscles:['hips'],
+    howto:'Hold a chair or counter, place hands on hips, and make slow circles with your hips, like a gentle hula motion.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="10" r="7" ${F}/><line x1="30" y1="17" x2="30" y2="36" ${S}/><ellipse cx="30" cy="40" rx="14" ry="6" fill="none" stroke="#2B5347" stroke-width="3" stroke-dasharray="3 4"/><line x1="30" y1="40" x2="24" y2="54" ${S}/><line x1="30" y1="40" x2="36" y2="54" ${S}/></svg>` },
+  { id:'shoulderrolls', cat:'warmup', name:'Seated shoulder rolls', reps:'8 forward, 8 backward', muscles:['shoulders'],
+    howto:'Sit tall, lift shoulders up toward your ears, roll them back and down slowly.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="14" r="7" ${F}/><line x1="30" y1="21" x2="30" y2="42" ${S}/><line x1="30" y1="42" x2="20" y2="52" ${S}/><line x1="30" y1="42" x2="40" y2="52" ${S}/><path d="M18 26 Q 30 16 42 26" fill="none" stroke="#2B5347" stroke-width="3" stroke-dasharray="3 4"/></svg>` },
+
+  // LOWER BODY
+  { id:'squats', cat:'lower', name:'Chair squats', reps:'8–10 reps', muscles:['quads','hips'],
+    howto:'Sit down, stand up. Use arms on the chair or counter for support.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="10" r="7" ${F}/><line x1="30" y1="17" x2="30" y2="32" ${S}/><line x1="30" y1="32" x2="16" y2="44" ${S}/><line x1="16" y1="44" x2="16" y2="53" ${S}/><line x1="30" y1="32" x2="44" y2="44" ${S}/><line x1="44" y1="44" x2="44" y2="53" ${S}/><line x1="30" y1="21" x2="14" y2="25" ${S}/><line x1="30" y1="21" x2="46" y2="25" ${S}/></svg>` },
+  { id:'legext', cat:'lower', name:'Seated leg extensions', reps:'10 reps each leg', muscles:['quads'],
+    howto:'Sit in a chair, straighten one leg out, hold 2 seconds, lower slowly.',
+    svg:`<svg viewBox="0 0 60 60"><rect x="6" y="30" width="24" height="16" rx="6" fill="#DCE6E0"/><circle cx="22" cy="12" r="7" ${F}/><line x1="22" y1="19" x2="22" y2="38" ${S}/><line x1="22" y1="38" x2="44" y2="38" ${S}/><line x1="22" y1="24" x2="10" y2="30" ${S}/><line x1="22" y1="24" x2="34" y2="18" ${S}/></svg>` },
+  { id:'calfraise', cat:'lower', name:'Standing calf raises', reps:'10–15 reps', muscles:['calves'],
+    howto:'Hold a counter, rise onto your toes, lower with control.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="8" r="7" ${F}/><line x1="30" y1="15" x2="30" y2="34" ${S}/><line x1="30" y1="34" x2="24" y2="48" ${S}/><line x1="24" y1="48" x2="30" y2="52" ${S}/><line x1="30" y1="34" x2="36" y2="48" ${S}/><line x1="36" y1="48" x2="30" y2="52" ${S}/><line x1="30" y1="19" x2="16" y2="12" ${S}/><line x1="30" y1="19" x2="44" y2="12" ${S}/></svg>` },
+  { id:'sideleg', cat:'lower', name:'Side leg raises', reps:'8 reps each leg', muscles:['hips'],
+    howto:'Hold a chair back, lift one leg out to the side, lower slowly.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="24" cy="10" r="7" ${F}/><line x1="24" y1="17" x2="24" y2="34" ${S}/><line x1="24" y1="34" x2="24" y2="52" ${S}/><line x1="24" y1="34" x2="46" y2="40" ${S}/><line x1="24" y1="21" x2="12" y2="17" ${S}/><line x1="24" y1="21" x2="12" y2="30" ${S}/></svg>` },
+  { id:'hamcurl', cat:'lower', name:'Standing hamstring curls', reps:'10 reps each leg', muscles:['hamstrings'],
+    howto:'Hold a chair, bend one knee, bring your heel toward your glutes.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="26" cy="10" r="7" ${F}/><line x1="26" y1="17" x2="26" y2="34" ${S}/><line x1="26" y1="34" x2="26" y2="52" ${S}/><line x1="26" y1="34" x2="42" y2="40" ${S}/><path d="M42 40 Q 52 42 46 26" ${S}/><line x1="26" y1="21" x2="12" y2="16" ${S}/></svg>` },
+  { id:'pulses', cat:'lower', name:'Sit-to-stand pulses', reps:'10 small pulses', muscles:['quads','hips'],
+    howto:'Hover just above the seat, pulse up and down a couple inches.',
+    svg:`<svg viewBox="0 0 60 60"><rect x="8" y="42" width="44" height="6" rx="3" fill="#DCE6E0"/><circle cx="30" cy="14" r="7" ${F}/><line x1="30" y1="21" x2="30" y2="34" ${S}/><line x1="30" y1="34" x2="18" y2="42" ${S}/><line x1="30" y1="34" x2="42" y2="42" ${S}/><line x1="30" y1="25" x2="18" y2="20" ${S}/><line x1="30" y1="25" x2="42" y2="20" ${S}/></svg>` },
+  { id:'wallsit', cat:'lower', name:'Wall sit (short hold)', reps:'Hold 10–15 seconds', muscles:['quads'],
+    howto:'Back flat against a wall, slide down to a shallow bend (however deep is comfortable), hold, then slide back up. A little goes a long way here.',
+    svg:`<svg viewBox="0 0 60 60"><line x1="10" y1="4" x2="10" y2="56" stroke="#DCE6E0" stroke-width="4" stroke-linecap="round"/><circle cx="22" cy="12" r="7" ${F}/><line x1="22" y1="19" x2="22" y2="32" ${S}/><line x1="22" y1="32" x2="36" y2="40" ${S}/><line x1="36" y1="40" x2="36" y2="54" ${S}/><line x1="22" y1="32" x2="14" y2="40" ${S}/><line x1="14" y1="40" x2="14" y2="54" ${S}/></svg>` },
+
+  // UPPER BODY
+  { id:'wallpush', cat:'upper', name:'Wall push-ups', reps:'8–10 reps', muscles:['chest','arms','shoulders'],
+    howto:"Arm's length from a wall, lower chest toward it, push back.",
+    svg:`<svg viewBox="0 0 60 60"><line x1="50" y1="4" x2="50" y2="56" stroke="#DCE6E0" stroke-width="4" stroke-linecap="round"/><circle cx="18" cy="14" r="7" ${F}/><line x1="18" y1="21" x2="32" y2="38" ${S}/><line x1="32" y1="38" x2="32" y2="53" ${S}/><line x1="18" y1="25" x2="46" y2="18" ${S}/><line x1="32" y1="38" x2="50" y2="30" ${S}/></svg>` },
+  { id:'rows', cat:'upper', name:'Seated rows (band)', reps:'10–12 reps', muscles:['back','arms'],
+    howto:'Anchor a band around a sturdy point, pull elbows back, squeeze shoulder blades together.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="16" cy="10" r="7" ${F}/><line x1="16" y1="17" x2="16" y2="34" ${S}/><line x1="16" y1="34" x2="16" y2="53" ${S}/><line x1="16" y1="21" x2="32" y2="23" ${S}/><line x1="32" y1="23" x2="46" y2="14" ${S}/><path d="M46 14 Q 54 23 46 32" ${S}/></svg>` },
+  { id:'shoulderpress', cat:'upper', name:'Seated shoulder press', reps:'8–10 reps', muscles:['shoulders','arms'],
+    howto:'Light weights or water bottles. Push arms overhead, lower with control.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="14" r="7" ${F}/><line x1="30" y1="21" x2="30" y2="40" ${S}/><line x1="30" y1="40" x2="30" y2="53" ${S}/><line x1="30" y1="25" x2="16" y2="10" ${S}/><line x1="30" y1="25" x2="44" y2="10" ${S}/><circle cx="16" cy="10" r="4" fill="#DCE6E0"/><circle cx="44" cy="10" r="4" fill="#DCE6E0"/></svg>` },
+  { id:'curls', cat:'upper', name:'Bicep curls', reps:'10 reps', muscles:['arms'],
+    howto:'Light dumbbells or water bottles, curl up slowly, lower with control.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="12" r="7" ${F}/><line x1="30" y1="19" x2="30" y2="38" ${S}/><line x1="30" y1="38" x2="30" y2="53" ${S}/><line x1="30" y1="23" x2="16" y2="27" ${S}/><line x1="16" y1="27" x2="22" y2="16" ${S}/><circle cx="22" cy="16" r="4" fill="#DCE6E0"/><line x1="30" y1="23" x2="44" y2="27" ${S}/><line x1="44" y1="27" x2="38" y2="16" ${S}/><circle cx="38" cy="16" r="4" fill="#DCE6E0"/></svg>` },
+  { id:'triceps', cat:'upper', name:'Seated tricep extensions', reps:'10 reps', muscles:['arms'],
+    howto:'Hold a weight overhead with both hands, lower behind your head, extend back up.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="14" r="7" ${F}/><line x1="30" y1="21" x2="30" y2="40" ${S}/><line x1="30" y1="40" x2="30" y2="53" ${S}/><line x1="30" y1="24" x2="30" y2="10" ${S}/><path d="M22 12 Q 30 4 38 12" ${S}/></svg>` },
+  { id:'lateral', cat:'upper', name:'Lateral raises', reps:'8–10 reps', muscles:['shoulders'],
+    howto:'Light weights, raise arms out to your sides to shoulder height, lower slowly.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="12" r="7" ${F}/><line x1="30" y1="19" x2="30" y2="40" ${S}/><line x1="30" y1="40" x2="30" y2="53" ${S}/><line x1="30" y1="24" x2="12" y2="22" ${S}/><circle cx="12" cy="22" r="4" fill="#DCE6E0"/><line x1="30" y1="24" x2="48" y2="22" ${S}/><circle cx="48" cy="22" r="4" fill="#DCE6E0"/></svg>` },
+  { id:'chestpress', cat:'upper', name:'Seated chest press', reps:'10–12 reps', muscles:['chest','arms'],
+    howto:'Hold light weights or water bottles at chest height, palms forward, press arms straight out in front, then bring back in.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="16" cy="12" r="7" ${F}/><line x1="16" y1="19" x2="16" y2="40" ${S}/><line x1="16" y1="40" x2="16" y2="53" ${S}/><line x1="16" y1="24" x2="36" y2="24" ${S}/><circle cx="40" cy="24" r="5" fill="#DCE6E0"/></svg>` },
+  { id:'frontraise', cat:'upper', name:'Seated front arm raises', reps:'10 reps', muscles:['shoulders'],
+    howto:'Hold light weights, raise both arms straight out in front to shoulder height, lower slowly.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="18" cy="12" r="7" ${F}/><line x1="18" y1="19" x2="18" y2="40" ${S}/><line x1="18" y1="40" x2="18" y2="53" ${S}/><line x1="18" y1="24" x2="42" y2="18" ${S}/><circle cx="46" cy="17" r="4" fill="#DCE6E0"/></svg>` },
+
+  // CORE
+  { id:'kneelifts', cat:'core', name:'Seated knee lifts', reps:'10 reps each side', muscles:['core'],
+    howto:'Sit tall, lift one knee toward your chest, lower with control.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="24" cy="10" r="7" ${F}/><line x1="24" y1="17" x2="24" y2="34" ${S}/><line x1="24" y1="34" x2="36" y2="24" ${S}/><line x1="36" y1="24" x2="40" y2="14" ${S}/><line x1="24" y1="34" x2="24" y2="52" ${S}/><line x1="24" y1="21" x2="10" y2="17" ${S}/></svg>` },
+  { id:'twists', cat:'core', name:'Seated torso twists', reps:'10 reps each side', muscles:['core','back'],
+    howto:'Arms crossed over chest, rotate gently side to side from your waist.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="10" r="7" ${F}/><line x1="30" y1="17" x2="30" y2="38" ${S}/><line x1="30" y1="38" x2="20" y2="52" ${S}/><line x1="30" y1="38" x2="40" y2="52" ${S}/><line x1="30" y1="21" x2="42" y2="17" ${S}/><line x1="30" y1="21" x2="18" y2="25" ${S}/></svg>` },
+  { id:'sidebend', cat:'core', name:'Seated side bends', reps:'8 reps each side', muscles:['core'],
+    howto:'Sit tall, reach one arm overhead and lean gently to the opposite side.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="34" cy="10" r="7" ${F}/><path d="M34 17 Q 24 34 30 52" ${S}/><line x1="30" y1="52" x2="20" y2="52" ${S}/><line x1="30" y1="52" x2="40" y2="52" ${S}/><line x1="34" y1="17" x2="14" y2="8" ${S}/></svg>` },
+  { id:'pelvictilt', cat:'core', name:'Seated pelvic tilts', reps:'10 reps, hold 3 seconds', muscles:['core'],
+    howto:'Sit tall with feet flat on the floor. Push your lower back into the chair back, tuck your tailbone under, hold, then release.',
+    svg:`<svg viewBox="0 0 60 60"><rect x="8" y="30" width="10" height="26" rx="4" fill="#DCE6E0"/><circle cx="34" cy="12" r="7" ${F}/><line x1="34" y1="19" x2="30" y2="38" ${S}/><path d="M30 38 Q 22 42 20 34" ${S}/><line x1="30" y1="38" x2="34" y2="54" ${S}/></svg>` },
+
+  // YOGA / STRETCHING
+  { id:'catcow', cat:'yoga', name:'Seated cat-cow', reps:'8 slow rounds', muscles:['back','core'],
+    howto:'Hands on knees, arch your back and lift your chest, then round forward and tuck your chin.',
+    svg:`<svg viewBox="0 0 60 60"><rect x="6" y="42" width="30" height="12" rx="6" fill="#DCE6E0"/><circle cx="34" cy="16" r="7" ${F}/><path d="M34 23 Q 24 32 22 44" ${S}/><line x1="22" y1="44" x2="14" y2="50" ${S}/><line x1="34" y1="26" x2="20" y2="22" ${S}/></svg>` },
+  { id:'forwardfold', cat:'yoga', name:'Seated forward fold', reps:'Hold 20–30 seconds', muscles:['hamstrings','back'],
+    howto:'Sit at the edge of a chair, hinge forward from your hips, let your arms hang.',
+    svg:`<svg viewBox="0 0 60 60"><rect x="8" y="38" width="26" height="14" rx="6" fill="#DCE6E0"/><path d="M20 42 Q 26 24 40 14" ${S}/><circle cx="42" cy="10" r="7" ${F}/><line x1="20" y1="42" x2="10" y2="56" ${S}/></svg>` },
+  { id:'spinaltwist', cat:'yoga', name:'Seated spinal twist', reps:'Hold 20 seconds each side', muscles:['back','core'],
+    howto:'Sit tall, place one hand on the outside of the opposite knee, gently twist and look over your shoulder.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="26" cy="10" r="7" ${F}/><line x1="26" y1="17" x2="30" y2="40" ${S}/><line x1="30" y1="40" x2="20" y2="52" ${S}/><line x1="30" y1="40" x2="42" y2="52" ${S}/><line x1="26" y1="22" x2="44" y2="30" ${S}/><line x1="26" y1="22" x2="12" y2="16" ${S}/></svg>` },
+  { id:'sidestretch', cat:'yoga', name:'Seated side stretch', reps:'Hold 20 seconds each side', muscles:['core','back'],
+    howto:'Sit tall, reach both arms up and gently lean to one side, feeling the stretch along your ribs.',
+    svg:`<svg viewBox="0 0 60 60"><path d="M30 52 Q 20 30 30 10" ${S}/><circle cx="30" cy="8" r="6" ${F}/><line x1="30" y1="52" x2="20" y2="52" ${S}/><line x1="30" y1="52" x2="40" y2="52" ${S}/></svg>` },
+  { id:'neckroll', cat:'yoga', name:'Neck rolls', reps:'5 slow rolls each direction', muscles:['shoulders'],
+    howto:'Sit tall, gently drop one ear toward a shoulder and roll your head slowly in a half-circle.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="20" r="9" fill="none" stroke="#2B5347" stroke-width="4" stroke-dasharray="4 5"/><line x1="30" y1="29" x2="30" y2="46" ${S}/><line x1="30" y1="46" x2="18" y2="53" ${S}/><line x1="30" y1="46" x2="42" y2="53" ${S}/></svg>` },
+  { id:'figure4', cat:'yoga', name:'Seated figure-4 stretch', reps:'Hold 20–30 seconds each side', muscles:['hips'],
+    howto:'Sit tall, cross one ankle over the opposite knee, gently lean forward.',
+    svg:`<svg viewBox="0 0 60 60"><rect x="6" y="42" width="30" height="12" rx="6" fill="#DCE6E0"/><circle cx="16" cy="16" r="7" ${F}/><line x1="16" y1="23" x2="20" y2="42" ${S}/><path d="M20 42 Q 34 38 40 26" ${S}/><line x1="16" y1="26" x2="8" y2="34" ${S}/></svg>` },
+  { id:'treepose', cat:'yoga', name:'Chair-supported tree pose', reps:'Hold 15–20 seconds each side', muscles:['quads','hips'],
+    howto:'Stand beside a chair, one hand resting on it for balance. Bend one knee and rest that foot against your standing ankle or calf (not on the knee joint). Hold, then switch sides.',
+    svg:`<svg viewBox="0 0 60 60"><rect x="42" y="20" width="4" height="34" fill="#DCE6E0"/><rect x="42" y="20" width="14" height="4" fill="#DCE6E0"/><circle cx="24" cy="10" r="7" ${F}/><line x1="24" y1="17" x2="24" y2="38" ${S}/><line x1="24" y1="38" x2="24" y2="54" ${S}/><path d="M24 44 Q 34 42 30 32" ${S}/><line x1="24" y1="21" x2="42" y2="24" ${S}/><line x1="24" y1="21" x2="16" y2="8" ${S}/></svg>` },
+  { id:'warrior2', cat:'yoga', name:'Chair-supported warrior II', reps:'Hold 15–20 seconds each side', muscles:['quads','shoulders'],
+    howto:'Stand with feet wide apart, one hand on a chair for balance. Bend your front knee gently and extend the other arm out to the side.',
+    svg:`<svg viewBox="0 0 60 60"><rect x="46" y="18" width="4" height="30" fill="#DCE6E0"/><circle cx="26" cy="10" r="7" ${F}/><line x1="26" y1="17" x2="26" y2="36" ${S}/><line x1="26" y1="36" x2="14" y2="54" ${S}/><line x1="26" y1="36" x2="38" y2="54" ${S}/><line x1="26" y1="22" x2="46" y2="20" ${S}/><line x1="26" y1="22" x2="10" y2="16" ${S}/></svg>` },
+  { id:'overheadreach', cat:'yoga', name:'Seated overhead reach', reps:'Hold 15–20 seconds each side', muscles:['core','shoulders'],
+    howto:'Sit tall, reach one arm straight overhead and gently lean the other direction, feeling a long stretch up your side.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="10" r="7" ${F}/><line x1="30" y1="17" x2="30" y2="40" ${S}/><line x1="30" y1="40" x2="20" y2="53" ${S}/><line x1="30" y1="40" x2="40" y2="53" ${S}/><path d="M30 20 Q 40 8 46 4" ${S}/></svg>` },
+
+  // COOL-DOWN
+  { id:'cooldown', cat:'cooldown', name:'Gentle full-body stretch', reps:'2–3 minutes', muscles:['core','back','shoulders'],
+    howto:'Seated forward reach, ankle circles, gentle shoulder rolls — whatever feels good.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="12" r="7" ${F}/><line x1="30" y1="19" x2="30" y2="40" ${S}/><line x1="30" y1="40" x2="30" y2="53" ${S}/><line x1="30" y1="23" x2="46" y2="32" ${S}/><line x1="30" y1="23" x2="14" y2="18" ${S}/></svg>` },
+];
+
+const CATS = [
+  { id:'all', label:'All' },
+  { id:'warmup', label:'Warm-up' },
+  { id:'lower', label:'Lower body' },
+  { id:'upper', label:'Upper body' },
+  { id:'core', label:'Core' },
+  { id:'yoga', label:'Yoga / stretch' },
+  { id:'cooldown', label:'Cool-down' },
+];
+
+const CAT_TITLES = {
+  warmup: 'Warm-up', lower: 'Lower body', upper: 'Upper body',
+  core: 'Core', yoga: 'Yoga / stretching', cooldown: 'Cool-down'
+};
+
+const MUSCLE_LABELS = {
+  shoulders:'Shoulders', chest:'Chest', arms:'Arms', back:'Back', core:'Core',
+  hips:'Hips / Glutes', quads:'Quads', hamstrings:'Hamstrings', calves:'Calves'
+};
+
+const ZONE_MAP = {
+  shoulders: ['z-shoulders-l','z-shoulders-r'],
+  chest: ['z-chest'],
+  arms: ['z-arms-l','z-arms-r'],
+  core: ['z-core'],
+  hips: ['z-hips'],
+  quads: ['z-quads-l','z-quads-r'],
+  calves: ['z-calves-l','z-calves-r'],
+};
+
+let activeFilter = 'all';
+let doneState = {};
+let suggestedIds = null; // null = not in suggested mode; array = list of exercise ids
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// How many to pull from each category for a balanced session, and target muscle spread
+const GENERATE_PLAN = { warmup: 1, lower: 2, upper: 2, core: 2, yoga: 1, cooldown: 1 };
+
+function generateWorkout() {
+  const picked = [];
+  Object.keys(GENERATE_PLAN).forEach(cat => {
+    const pool = shuffle(EX.filter(e => e.cat === cat));
+    const usedMuscles = new Set();
+    const chosen = [];
+    // try to pick items that cover different muscles first
+    for (const ex of pool) {
+      if (chosen.length >= GENERATE_PLAN[cat]) break;
+      const overlap = ex.muscles.some(m => usedMuscles.has(m));
+      if (!overlap || chosen.length === 0) {
+        chosen.push(ex);
+        ex.muscles.forEach(m => usedMuscles.add(m));
+      }
+    }
+    // fill remaining slots if not enough variety found
+    for (const ex of pool) {
+      if (chosen.length >= GENERATE_PLAN[cat]) break;
+      if (!chosen.includes(ex)) chosen.push(ex);
+    }
+    picked.push(...chosen);
+  });
+  suggestedIds = picked.map(e => e.id);
+  renderSuggestedBanner();
+  renderList();
+}
+
+function renderSuggestedBanner() {
+  const el = document.getElementById('suggestedBanner');
+  if (!suggestedIds) { el.style.display = 'none'; el.innerHTML=''; return; }
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="suggested-banner">
+      <div>
+        <strong>Today's balanced mix — ${suggestedIds.length} moves</strong>
+        A little from each area: warm-up, legs, upper body, core, and a stretch.
+      </div>
+      <div class="suggested-banner-actions">
+        <button class="mini-btn" id="regenBtn">Shuffle</button>
+        <button class="mini-btn" id="clearSuggestBtn">Show all</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('regenBtn').onclick = generateWorkout;
+  document.getElementById('clearSuggestBtn').onclick = () => {
+    suggestedIds = null;
+    renderSuggestedBanner();
+    renderList();
+  };
+}
+
+document.getElementById('generateBtn').addEventListener('click', generateWorkout);
+
+function renderFilters() {
+  const row = document.getElementById('filterRow');
+  row.innerHTML = '';
+  CATS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-pill' + (c.id === activeFilter ? ' active' : '');
+    btn.textContent = c.label;
+    btn.onclick = () => { activeFilter = c.id; suggestedIds = null; renderSuggestedBanner(); renderFilters(); renderList(); };
+    row.appendChild(btn);
+  });
+}
+
+function renderChips() {
+  const row = document.getElementById('chipRow');
+  row.innerHTML = '';
+  Object.keys(MUSCLE_LABELS).forEach(m => {
+    const active = EX.some(e => doneState[e.id] && e.muscles.includes(m));
+    const chip = document.createElement('span');
+    chip.className = 'chip' + (active ? ' active' : '');
+    chip.textContent = MUSCLE_LABELS[m];
+    row.appendChild(chip);
+  });
+}
+
+function renderZones() {
+  Object.keys(ZONE_MAP).forEach(m => {
+    const active = EX.some(e => doneState[e.id] && e.muscles.includes(m));
+    ZONE_MAP[m].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('active', active);
+    });
+  });
+}
+
+function renderList() {
+  const root = document.getElementById('listRoot');
+  root.innerHTML = '';
+
+  if (suggestedIds) {
+    const items = suggestedIds.map(id => EX.find(e => e.id === id)).filter(Boolean);
+    items.forEach(e => root.appendChild(buildCard(e)));
+    return;
+  }
+
+  const cats = activeFilter === 'all' ? Object.keys(CAT_TITLES) : [activeFilter];
+  let num = 1;
+  cats.forEach(catId => {
+    const items = EX.filter(e => e.cat === catId);
+    if (!items.length) return;
+    const label = document.createElement('div');
+    label.className = 'day-label';
+    label.innerHTML = `<span class="num">${num++}</span><h2>${CAT_TITLES[catId]}</h2><span class="count">${items.length} move${items.length>1?'s':''}</span>`;
+    root.appendChild(label);
+    items.forEach(e => root.appendChild(buildCard(e)));
+  });
+}
+
+function buildCard(e) {
+  const card = document.createElement('div');
+  card.className = 'card' + (doneState[e.id] ? ' done' : '');
+  card.dataset.id = e.id;
+  const muscleChips = e.muscles.map(m => `<span class="muscle-chip">${MUSCLE_LABELS[m]}</span>`).join('');
+  const searchUrl = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(e.name + ' exercise how to');
+  card.innerHTML = `
+    <div class="icon-col">
+      <div class="icon-wrap" data-search="${searchUrl}">
+        ${e.svg}
+        <span class="search-badge"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      </div>
+      <div class="icon-hint">tap for photos</div>
+    </div>
+    <div class="info">
+      <div class="name">${e.name}</div>
+      <div class="reps">${e.reps}</div>
+      <div class="howto">${e.howto}</div>
+      <div class="muscle-chips">${muscleChips}</div>
+    </div>
+    <div class="check"><svg viewBox="0 0 24 24"><polyline points="4,13 9,18 20,6"/></svg></div>
+  `;
+  card.querySelector('.icon-wrap').addEventListener('click', (evt) => {
+    evt.stopPropagation();
+    window.open(searchUrl, '_blank', 'noopener');
+  });
+  card.addEventListener('click', () => toggleExercise(e.id));
+  return card;
+}
+
+function toggleExercise(id) {
+  doneState[id] = !doneState[id];
+  renderList();
+  renderChips();
+  renderZones();
+  saveState();
+}
+
+const total = EX.length;
+const progressText = document.getElementById('progressText');
+const streakText = document.getElementById('streakText');
+const ring = document.getElementById('ringProgress');
+const CIRC = 132;
+const todayKey = () => new Date().toISOString().slice(0,10);
+
+function updateRing() {
+  const done = Object.values(doneState).filter(Boolean).length;
+  const pct = done / total;
+  ring.setAttribute('stroke-dashoffset', CIRC - pct * CIRC);
+  progressText.textContent = done + ' done today';
+}
+
+async function loadState() {
+  try {
+    const res = await window.storage.get('checklist2:' + todayKey());
+    doneState = res ? JSON.parse(res.value) : {};
+  } catch (e) { doneState = {}; }
+  renderList();
+  renderChips();
+  renderZones();
+  updateRing();
+  await loadStreak();
+}
+
+async function saveState() {
+  try {
+    await window.storage.set('checklist2:' + todayKey(), JSON.stringify(doneState));
+  } catch (e) { console.error('save failed', e); }
+  updateRing();
+
+  const doneCount = Object.values(doneState).filter(Boolean).length;
+  if (doneCount >= 4) {
+    try { await window.storage.set('workout-day-done2:' + todayKey(), 'true'); } catch (e) {}
+  }
+  await loadStreak();
+}
+
+async function loadStreak() {
+  try {
+    let count = 0;
+    const d = new Date();
+    for (let i = 0; i < 14; i++) {
+      const key = 'workout-day-done2:' + d.toISOString().slice(0,10);
+      try {
+        const res = await window.storage.get(key);
+        if (res && res.value === 'true') { count++; }
+        else if (i > 0) { break; }
+      } catch (e) { if (i > 0) break; }
+      d.setDate(d.getDate() - 1);
+    }
+    if (count === 0) streakText.textContent = "Let's get your first day in";
+    else if (count === 1) streakText.textContent = '1 day streak — nice start';
+    else streakText.textContent = count + ' day streak — keep going';
+  } catch (e) {
+    streakText.textContent = 'Consistency beats intensity';
+  }
+}
+
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  doneState = {};
+  renderList(); renderChips(); renderZones(); updateRing();
+  try { await window.storage.delete('checklist2:' + todayKey()); } catch (e) {}
+});
+
+renderFilters();
+loadState();
+</script>
+
+</body>
+</html>
