@@ -557,8 +557,14 @@ function friendlyAuthError(code) {
     'auth/popup-closed-by-user': 'Google sign-in window was closed before finishing.',
     'auth/popup-blocked': 'Your browser blocked the Google sign-in popup — please allow popups and try again.',
     'auth/cancelled-popup-request': '',
+    'auth/unauthorized-domain': 'This website\'s address isn\'t authorized in Firebase yet. Go to Firebase Console → Authentication → Settings → Authorized domains, and add this site\'s domain.',
+    'auth/operation-not-allowed': 'This sign-in method isn\'t turned on yet in Firebase (Authentication → Sign-in method).',
+    'auth/network-request-failed': 'Network error — check your internet connection and try again.',
+    'auth/too-many-requests': 'Too many attempts — please wait a moment and try again.',
   };
-  return map[code] !== undefined ? map[code] : 'Something went wrong. Please try again.';
+  if (map[code] !== undefined) return map[code];
+  console.error('Unhandled auth error:', code);
+  return code ? ('Something went wrong (' + code + '). Check the browser console for details.') : 'Something went wrong. Please try again.';
 }
 
 document.getElementById('googleSignInBtn').addEventListener('click', async () => {
