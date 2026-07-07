@@ -186,6 +186,9 @@ const EX = [
   { id:'wallsit', cat:'lower', name:'Wall sit (short hold)', reps:'Hold 10–15 seconds', timerSeconds:15, muscles:['quads'],
     howto:'Back flat against a wall, slide down to a shallow bend (however deep is comfortable), hold, then slide back up. A little goes a long way here.',
     svg:`<svg viewBox="0 0 60 60"><line x1="10" y1="4" x2="10" y2="56" stroke="#DCE6E0" stroke-width="4" stroke-linecap="round"/><circle cx="22" cy="12" r="7" ${F}/><line x1="22" y1="19" x2="22" y2="32" ${S}/><line x1="22" y1="32" x2="36" y2="40" ${S}/><line x1="36" y1="40" x2="36" y2="54" ${S}/><line x1="22" y1="32" x2="14" y2="40" ${S}/><line x1="14" y1="40" x2="14" y2="54" ${S}/></svg>` },
+  { id:'bridge', cat:'lower', name:'Glute bridge', reps:'30 seconds', timerSeconds:30, muscles:['hips','hamstrings','core'],
+    howto:'Lie on your back with knees bent and feet flat. Press through your feet, lift your hips, squeeze your glutes, then lower with control.',
+    svg:`<svg viewBox="0 0 60 60"><path d="M4 49 H56" ${C}/><circle cx="10" cy="40" r="6" ${F}/><path d="M16 41 L28 31 L42 27 L51 43 M28 31 L20 45 M51 43 H56" ${S}/></svg>` },
 
   // UPPER BODY
   { id:'wallpush', cat:'upper', name:'Wall push-ups', reps:'8–10 reps', muscles:['chest','arms','shoulders'],
@@ -231,6 +234,27 @@ const EX = [
   { id:'catcow', cat:'yoga', name:'Seated cat-cow', reps:'8 slow rounds', muscles:['back','core'],
     howto:'Hands on knees, arch your back and lift your chest, then round forward and tuck your chin.',
     svg:`<svg viewBox="0 0 60 60"><path d="M8 39 H35 M11 39 V55 M33 39 V55" ${C}/><circle cx="40" cy="14" r="6" ${F}/><path d="M36 19 Q22 24 25 39 M34 23 L18 34 M25 39 L46 42 L50 55" ${S}/><path d="M30 18 Q20 27 25 36" ${C}/></svg>` },
+  { id:'childpose', cat:'yoga', name:"Child's pose", reps:'Hold 30 seconds', timerSeconds:30, muscles:['back','hips','shoulders'],
+    howto:'Kneel, sit your hips toward your heels, fold forward, and reach your arms ahead. Place a cushion under you if that feels better.',
+    svg:`<svg viewBox="0 0 60 60"><path d="M4 50 H56" ${C}/><circle cx="35" cy="34" r="6" ${F}/><path d="M29 35 Q20 31 16 42 L10 49 M17 42 L28 49 M39 38 L53 47 M38 39 L48 50" ${S}/></svg>` },
+  { id:'floorcatcow', cat:'yoga', name:'Floor cat-cow', reps:'40 seconds', timerSeconds:40, muscles:['back','core'],
+    howto:'Start on hands and knees. Slowly round your spine and tuck your chin, then gently arch your back and lift your chest.',
+    svg:`<svg viewBox="0 0 60 60"><path d="M5 52 H56" ${C}/><circle cx="46" cy="25" r="6" ${F}/><path d="M40 27 Q28 16 17 30 M17 30 L11 48 M18 30 L28 48 M40 29 L45 49 M38 29 L54 47" ${S}/><path d="M18 36 Q29 27 40 34" ${C}/></svg>` },
+  { id:'lyingbutterfly', cat:'yoga', name:'Lying butterfly stretch', reps:'Hold 50 seconds', timerSeconds:50, muscles:['hips'],
+    howto:'Lie on your back, bring the soles of your feet together, and let your knees open gently to the sides. Support your knees with cushions if needed.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="9" r="6" ${F}/><path d="M30 15 V34 M30 21 L16 29 M30 21 L44 29 M30 34 L16 44 L30 51 L44 44 L30 34" ${S}/><path d="M9 55 H51" ${C}/></svg>` },
+  { id:'lyingtwist', cat:'yoga', name:'Lying twist stretch', reps:'Hold 20 seconds each side', timerSeconds:20, muscles:['back','core','hips'],
+    howto:'Lie on your back with arms out. Bend your knees and lower them gently to one side while keeping both shoulders relaxed on the floor, then switch sides.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="18" cy="14" r="6" ${F}/><path d="M23 18 L34 31 M29 25 L11 31 M29 25 L46 17 M34 31 L45 40 L52 34 M34 31 L40 46 L49 49" ${S}/><path d="M6 54 H55" ${C}/></svg>` },
+  { id:'quadstretchwall', cat:'yoga', name:'Standing quad stretch with wall', reps:'Hold 20 seconds each leg', timerSeconds:20, muscles:['quads','hips'],
+    howto:'Rest one hand on a wall. Bend the opposite knee, hold your ankle behind you, and gently draw your heel toward your glutes. Switch legs.',
+    svg:`<svg viewBox="0 0 60 60"><path d="M51 5 V55" ${C}/><circle cx="29" cy="10" r="6" ${F}/><path d="M29 16 V35 M29 21 L50 19 M29 22 L18 35 M29 35 L28 54 M29 35 L42 43 L36 30 M18 35 L36 30" ${S}/></svg>` },
+  { id:'calfstretchwall', cat:'yoga', name:'Standing calf stretch with wall', reps:'Hold 20 seconds each leg', timerSeconds:20, muscles:['calves'],
+    howto:'Place both hands on a wall and step one foot back. Keep the back heel down and the back leg straight, then switch legs.',
+    svg:`<svg viewBox="0 0 60 60"><path d="M52 5 V55" ${C}/><circle cx="29" cy="10" r="6" ${F}/><path d="M29 16 L33 34 M31 22 L50 27 M33 34 L45 51 H54 M33 34 L15 51 H6" ${S}/></svg>` },
+  { id:'tricepsstretch', cat:'yoga', name:'Overhead triceps stretch', reps:'Hold 30 seconds each arm', timerSeconds:30, muscles:['arms','shoulders'],
+    howto:'Reach one arm overhead and bend the elbow so your hand drops behind your head. Use the other hand for a gentle assist, then switch arms.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="13" r="6" ${F}/><path d="M30 19 V39 M30 39 L20 54 M30 39 L40 54 M29 23 L20 12 L27 3 M31 24 L41 13 L27 3" ${S}/></svg>` },
   { id:'forwardfold', cat:'yoga', name:'Seated forward fold', reps:'Hold 20–30 seconds', timerSeconds:30, muscles:['hamstrings','back'],
     howto:'Sit at the edge of a chair, hinge forward from your hips, let your arms hang.',
     svg:`<svg viewBox="0 0 60 60"><path d="M8 39 H33 M11 39 V55 M31 39 V55" ${C}/><circle cx="45" cy="25" r="6" ${F}/><path d="M39 26 Q27 28 23 39 M32 29 L39 48 M23 39 L43 41 L49 54" ${S}/></svg>` },
@@ -257,9 +281,21 @@ const EX = [
     svg:`<svg viewBox="0 0 60 60"><path d="M11 40 H45 M14 40 V55 M42 40 V55" ${C}/><circle cx="31" cy="11" r="6" ${F}/><path d="M30 17 Q27 28 29 40 M29 40 L20 53 M29 40 L40 53 M30 21 L17 32 M31 19 Q37 10 39 3" ${S}/></svg>` },
 
   // COOL-DOWN
-  { id:'cooldown', cat:'cooldown', name:'Gentle full-body stretch', reps:'2–3 minutes', timerSeconds:180, muscles:['core','back','shoulders'],
-    howto:'Seated forward reach, ankle circles, gentle shoulder rolls — whatever feels good.',
-    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="12" r="7" ${F}/><line x1="30" y1="19" x2="30" y2="40" ${S}/><line x1="30" y1="40" x2="30" y2="53" ${S}/><line x1="30" y1="23" x2="46" y2="32" ${S}/><line x1="30" y1="23" x2="14" y2="18" ${S}/></svg>` },
+  { id:'cooldown', cat:'cooldown', name:'Slow cool-down breathing', reps:'1 minute', timerSeconds:60, muscles:['core'],
+    howto:'Sit tall and relax your shoulders. Breathe in slowly through your nose, then breathe out longer through your mouth.',
+    svg:`<svg viewBox="0 0 60 60"><path d="M10 39 H43 M13 39 V55 M40 39 V55" ${C}/><circle cx="28" cy="10" r="6" ${F}/><path d="M28 16 V39 M28 39 L20 53 M28 39 L38 53 M28 24 L17 32 M28 24 L39 32" ${S}/><path d="M39 15 Q49 19 40 23 M43 10 Q57 17 46 28" ${C}/></svg>` },
+  { id:'cooldownhamstring', cat:'cooldown', name:'Seated hamstring stretch', reps:'Hold 30 seconds each leg', timerSeconds:30, muscles:['hamstrings','calves'],
+    howto:'Sit near the edge of a chair. Extend one leg with the heel down and toes up, then hinge forward with a straight back. Switch legs.',
+    svg:`<svg viewBox="0 0 60 60"><path d="M8 38 H32 M11 38 V55 M30 38 V55" ${C}/><circle cx="22" cy="10" r="6" ${F}/><path d="M22 16 Q27 27 25 38 M24 23 L36 31 M25 38 L48 48 H56 M25 38 L34 51" ${S}/></svg>` },
+  { id:'cooldownshoulder', cat:'cooldown', name:'Cross-body shoulder stretch', reps:'Hold 20 seconds each arm', timerSeconds:20, muscles:['shoulders','arms'],
+    howto:'Bring one arm across your chest. Use the other forearm to draw it gently closer without lifting your shoulder, then switch arms.',
+    svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="10" r="6" ${F}/><path d="M30 16 V39 M30 39 L20 54 M30 39 L40 54 M17 24 L45 29 M34 21 L25 32 L17 24" ${S}/></svg>` },
+  { id:'cooldownchest', cat:'cooldown', name:'Seated chest opener', reps:'Hold 30 seconds', timerSeconds:30, muscles:['chest','shoulders'],
+    howto:'Sit tall, draw your hands or elbows gently behind you, and lift your chest while keeping your shoulders down and relaxed.',
+    svg:`<svg viewBox="0 0 60 60"><path d="M11 40 H45 M14 40 V55 M42 40 V55" ${C}/><circle cx="30" cy="10" r="6" ${F}/><path d="M30 16 V40 M30 40 L20 53 M30 40 L40 53 M29 23 L15 31 M31 23 L45 31 M15 31 Q30 39 45 31" ${S}/><path d="M22 20 Q30 15 38 20" ${C}/></svg>` },
+  { id:'cooldownneck', cat:'cooldown', name:'Seated neck side stretch', reps:'Hold 20 seconds each side', timerSeconds:20, muscles:['shoulders'],
+    howto:'Sit tall and lower one ear toward the same-side shoulder. Rest your hand lightly on your head without pulling, then switch sides.',
+    svg:`<svg viewBox="0 0 60 60"><path d="M11 40 H45 M14 40 V55 M42 40 V55" ${C}/><circle cx="34" cy="11" r="6" ${F}/><path d="M31 17 Q28 28 30 40 M30 40 L20 53 M30 40 L40 53 M30 23 L17 31 M31 20 L43 9 L37 4" ${S}/></svg>` },
 ];
 
 const CATS = [
@@ -311,7 +347,7 @@ function shuffle(arr) {
 }
 
 // How many to pull from each category for a balanced session, and target muscle spread
-const GENERATE_PLAN = { warmup: 1, lower: 2, upper: 2, core: 2, yoga: 1, cooldown: 1 };
+const GENERATE_PLAN = { warmup: 1, lower: 2, upper: 2, core: 2, yoga: 1, cooldown: 3 };
 
 function generateWorkout() {
   muscleFilter = null;
