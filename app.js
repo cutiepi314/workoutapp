@@ -135,6 +135,8 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById('userEmail').textContent = user.email;
     initApp();
   } else {
+    resetAllTimers();
+    document.getElementById('celebrateToast').classList.remove('show');
     authScreen.style.display = 'flex';
     appRoot.style.display = 'none';
   }
@@ -145,10 +147,10 @@ const F = 'fill="#2B5347"';
 
 const EX = [
   // WARM-UP
-  { id:'marching', cat:'warmup', name:'Seated marching', reps:'1 minute', muscles:['quads','core'],
+  { id:'marching', cat:'warmup', name:'Seated marching', reps:'1 minute', timerSeconds:60, muscles:['quads','core'],
     howto:'Sit tall, lift knees alternately, swing arms naturally.',
     svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="14" r="7" ${F}/><line x1="30" y1="21" x2="30" y2="38" ${S}/><line x1="30" y1="38" x2="20" y2="32" ${S}/><line x1="20" y1="32" x2="18" y2="20" ${S}/><line x1="30" y1="38" x2="44" y2="50" ${S}/><line x1="30" y1="26" x2="18" y2="18" ${S}/><line x1="30" y1="26" x2="42" y2="20" ${S}/><line x1="12" y1="52" x2="48" y2="52" stroke="#DCE6E0" stroke-width="4" stroke-linecap="round"/></svg>` },
-  { id:'armcircles', cat:'warmup', name:'Arm circles', reps:'20 seconds each direction', muscles:['shoulders'],
+  { id:'armcircles', cat:'warmup', name:'Arm circles', reps:'20 seconds each direction', timerSeconds:20, muscles:['shoulders'],
     howto:'Stand or sit, extend arms out to sides, make slow circles.',
     svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="12" r="7" ${F}/><line x1="30" y1="19" x2="30" y2="42" ${S}/><line x1="30" y1="24" x2="10" y2="16" ${S}/><circle cx="10" cy="16" r="8" fill="none" stroke="#2B5347" stroke-width="3" stroke-dasharray="3 4"/><line x1="30" y1="24" x2="50" y2="16" ${S}/><circle cx="50" cy="16" r="8" fill="none" stroke="#2B5347" stroke-width="3" stroke-dasharray="3 4"/><line x1="30" y1="42" x2="20" y2="54" ${S}/><line x1="30" y1="42" x2="40" y2="54" ${S}/></svg>` },
   { id:'anklecircles', cat:'warmup', name:'Ankle circles', reps:'10 each direction, each foot', muscles:['calves'],
@@ -180,7 +182,7 @@ const EX = [
   { id:'pulses', cat:'lower', name:'Sit-to-stand pulses', reps:'10 small pulses', muscles:['quads','hips'],
     howto:'Hover just above the seat, pulse up and down a couple inches.',
     svg:`<svg viewBox="0 0 60 60"><rect x="8" y="42" width="44" height="6" rx="3" fill="#DCE6E0"/><circle cx="30" cy="14" r="7" ${F}/><line x1="30" y1="21" x2="30" y2="34" ${S}/><line x1="30" y1="34" x2="18" y2="42" ${S}/><line x1="30" y1="34" x2="42" y2="42" ${S}/><line x1="30" y1="25" x2="18" y2="20" ${S}/><line x1="30" y1="25" x2="42" y2="20" ${S}/></svg>` },
-  { id:'wallsit', cat:'lower', name:'Wall sit (short hold)', reps:'Hold 10–15 seconds', muscles:['quads'],
+  { id:'wallsit', cat:'lower', name:'Wall sit (short hold)', reps:'Hold 10–15 seconds', timerSeconds:15, muscles:['quads'],
     howto:'Back flat against a wall, slide down to a shallow bend (however deep is comfortable), hold, then slide back up. A little goes a long way here.',
     svg:`<svg viewBox="0 0 60 60"><line x1="10" y1="4" x2="10" y2="56" stroke="#DCE6E0" stroke-width="4" stroke-linecap="round"/><circle cx="22" cy="12" r="7" ${F}/><line x1="22" y1="19" x2="22" y2="32" ${S}/><line x1="22" y1="32" x2="36" y2="40" ${S}/><line x1="36" y1="40" x2="36" y2="54" ${S}/><line x1="22" y1="32" x2="14" y2="40" ${S}/><line x1="14" y1="40" x2="14" y2="54" ${S}/></svg>` },
 
@@ -220,7 +222,7 @@ const EX = [
   { id:'sidebend', cat:'core', name:'Seated side bends', reps:'8 reps each side', muscles:['core'],
     howto:'Sit tall, reach one arm overhead and lean gently to the opposite side.',
     svg:`<svg viewBox="0 0 60 60"><circle cx="34" cy="10" r="7" ${F}/><path d="M34 17 Q 24 34 30 52" ${S}/><line x1="30" y1="52" x2="20" y2="52" ${S}/><line x1="30" y1="52" x2="40" y2="52" ${S}/><line x1="34" y1="17" x2="14" y2="8" ${S}/></svg>` },
-  { id:'pelvictilt', cat:'core', name:'Seated pelvic tilts', reps:'10 reps, hold 3 seconds', muscles:['core'],
+  { id:'pelvictilt', cat:'core', name:'Seated pelvic tilts', reps:'10 reps, hold 3 seconds', timerSeconds:3, muscles:['core'],
     howto:'Sit tall with feet flat on the floor. Push your lower back into the chair back, tuck your tailbone under, hold, then release.',
     svg:`<svg viewBox="0 0 60 60"><rect x="8" y="30" width="10" height="26" rx="4" fill="#DCE6E0"/><circle cx="34" cy="12" r="7" ${F}/><line x1="34" y1="19" x2="30" y2="38" ${S}/><path d="M30 38 Q 22 42 20 34" ${S}/><line x1="30" y1="38" x2="34" y2="54" ${S}/></svg>` },
 
@@ -228,33 +230,33 @@ const EX = [
   { id:'catcow', cat:'yoga', name:'Seated cat-cow', reps:'8 slow rounds', muscles:['back','core'],
     howto:'Hands on knees, arch your back and lift your chest, then round forward and tuck your chin.',
     svg:`<svg viewBox="0 0 60 60"><rect x="6" y="42" width="30" height="12" rx="6" fill="#DCE6E0"/><circle cx="34" cy="16" r="7" ${F}/><path d="M34 23 Q 24 32 22 44" ${S}/><line x1="22" y1="44" x2="14" y2="50" ${S}/><line x1="34" y1="26" x2="20" y2="22" ${S}/></svg>` },
-  { id:'forwardfold', cat:'yoga', name:'Seated forward fold', reps:'Hold 20–30 seconds', muscles:['hamstrings','back'],
+  { id:'forwardfold', cat:'yoga', name:'Seated forward fold', reps:'Hold 20–30 seconds', timerSeconds:30, muscles:['hamstrings','back'],
     howto:'Sit at the edge of a chair, hinge forward from your hips, let your arms hang.',
     svg:`<svg viewBox="0 0 60 60"><rect x="8" y="38" width="26" height="14" rx="6" fill="#DCE6E0"/><path d="M20 42 Q 26 24 40 14" ${S}/><circle cx="42" cy="10" r="7" ${F}/><line x1="20" y1="42" x2="10" y2="56" ${S}/></svg>` },
-  { id:'spinaltwist', cat:'yoga', name:'Seated spinal twist', reps:'Hold 20 seconds each side', muscles:['back','core'],
+  { id:'spinaltwist', cat:'yoga', name:'Seated spinal twist', reps:'Hold 20 seconds each side', timerSeconds:20, muscles:['back','core'],
     howto:'Sit tall, place one hand on the outside of the opposite knee, gently twist and look over your shoulder.',
     svg:`<svg viewBox="0 0 60 60"><circle cx="26" cy="10" r="7" ${F}/><line x1="26" y1="17" x2="30" y2="40" ${S}/><line x1="30" y1="40" x2="20" y2="52" ${S}/><line x1="30" y1="40" x2="42" y2="52" ${S}/><line x1="26" y1="22" x2="44" y2="30" ${S}/><line x1="26" y1="22" x2="12" y2="16" ${S}/></svg>` },
-  { id:'sidestretch', cat:'yoga', name:'Seated side stretch', reps:'Hold 20 seconds each side', muscles:['core','back'],
+  { id:'sidestretch', cat:'yoga', name:'Seated side stretch', reps:'Hold 20 seconds each side', timerSeconds:20, muscles:['core','back'],
     howto:'Sit tall, reach both arms up and gently lean to one side, feeling the stretch along your ribs.',
     svg:`<svg viewBox="0 0 60 60"><path d="M30 52 Q 20 30 30 10" ${S}/><circle cx="30" cy="8" r="6" ${F}/><line x1="30" y1="52" x2="20" y2="52" ${S}/><line x1="30" y1="52" x2="40" y2="52" ${S}/></svg>` },
   { id:'neckroll', cat:'yoga', name:'Neck rolls', reps:'5 slow rolls each direction', muscles:['shoulders'],
     howto:'Sit tall, gently drop one ear toward a shoulder and roll your head slowly in a half-circle.',
     svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="20" r="9" fill="none" stroke="#2B5347" stroke-width="4" stroke-dasharray="4 5"/><line x1="30" y1="29" x2="30" y2="46" ${S}/><line x1="30" y1="46" x2="18" y2="53" ${S}/><line x1="30" y1="46" x2="42" y2="53" ${S}/></svg>` },
-  { id:'figure4', cat:'yoga', name:'Seated figure-4 stretch', reps:'Hold 20–30 seconds each side', muscles:['hips'],
+  { id:'figure4', cat:'yoga', name:'Seated figure-4 stretch', reps:'Hold 20–30 seconds each side', timerSeconds:30, muscles:['hips'],
     howto:'Sit tall, cross one ankle over the opposite knee, gently lean forward.',
     svg:`<svg viewBox="0 0 60 60"><rect x="6" y="42" width="30" height="12" rx="6" fill="#DCE6E0"/><circle cx="16" cy="16" r="7" ${F}/><line x1="16" y1="23" x2="20" y2="42" ${S}/><path d="M20 42 Q 34 38 40 26" ${S}/><line x1="16" y1="26" x2="8" y2="34" ${S}/></svg>` },
-  { id:'treepose', cat:'yoga', name:'Chair-supported tree pose', reps:'Hold 15–20 seconds each side', muscles:['quads','hips'],
+  { id:'treepose', cat:'yoga', name:'Chair-supported tree pose', reps:'Hold 15–20 seconds each side', timerSeconds:20, muscles:['quads','hips'],
     howto:'Stand beside a chair, one hand resting on it for balance. Bend one knee and rest that foot against your standing ankle or calf (not on the knee joint). Hold, then switch sides.',
     svg:`<svg viewBox="0 0 60 60"><rect x="42" y="20" width="4" height="34" fill="#DCE6E0"/><rect x="42" y="20" width="14" height="4" fill="#DCE6E0"/><circle cx="24" cy="10" r="7" ${F}/><line x1="24" y1="17" x2="24" y2="38" ${S}/><line x1="24" y1="38" x2="24" y2="54" ${S}/><path d="M24 44 Q 34 42 30 32" ${S}/><line x1="24" y1="21" x2="42" y2="24" ${S}/><line x1="24" y1="21" x2="16" y2="8" ${S}/></svg>` },
-  { id:'warrior2', cat:'yoga', name:'Chair-supported warrior II', reps:'Hold 15–20 seconds each side', muscles:['quads','shoulders'],
+  { id:'warrior2', cat:'yoga', name:'Chair-supported warrior II', reps:'Hold 15–20 seconds each side', timerSeconds:20, muscles:['quads','shoulders'],
     howto:'Stand with feet wide apart, one hand on a chair for balance. Bend your front knee gently and extend the other arm out to the side.',
     svg:`<svg viewBox="0 0 60 60"><rect x="46" y="18" width="4" height="30" fill="#DCE6E0"/><circle cx="26" cy="10" r="7" ${F}/><line x1="26" y1="17" x2="26" y2="36" ${S}/><line x1="26" y1="36" x2="14" y2="54" ${S}/><line x1="26" y1="36" x2="38" y2="54" ${S}/><line x1="26" y1="22" x2="46" y2="20" ${S}/><line x1="26" y1="22" x2="10" y2="16" ${S}/></svg>` },
-  { id:'overheadreach', cat:'yoga', name:'Seated overhead reach', reps:'Hold 15–20 seconds each side', muscles:['core','shoulders'],
+  { id:'overheadreach', cat:'yoga', name:'Seated overhead reach', reps:'Hold 15–20 seconds each side', timerSeconds:20, muscles:['core','shoulders'],
     howto:'Sit tall, reach one arm straight overhead and gently lean the other direction, feeling a long stretch up your side.',
     svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="10" r="7" ${F}/><line x1="30" y1="17" x2="30" y2="40" ${S}/><line x1="30" y1="40" x2="20" y2="53" ${S}/><line x1="30" y1="40" x2="40" y2="53" ${S}/><path d="M30 20 Q 40 8 46 4" ${S}/></svg>` },
 
   // COOL-DOWN
-  { id:'cooldown', cat:'cooldown', name:'Gentle full-body stretch', reps:'2–3 minutes', muscles:['core','back','shoulders'],
+  { id:'cooldown', cat:'cooldown', name:'Gentle full-body stretch', reps:'2–3 minutes', timerSeconds:180, muscles:['core','back','shoulders'],
     howto:'Seated forward reach, ankle circles, gentle shoulder rolls — whatever feels good.',
     svg:`<svg viewBox="0 0 60 60"><circle cx="30" cy="12" r="7" ${F}/><line x1="30" y1="19" x2="30" y2="40" ${S}/><line x1="30" y1="40" x2="30" y2="53" ${S}/><line x1="30" y1="23" x2="46" y2="32" ${S}/><line x1="30" y1="23" x2="14" y2="18" ${S}/></svg>` },
 ];
@@ -284,8 +286,12 @@ const ZONE_MAP = {
   chest: ['z-chest'],
   arms: ['z-arms-l','z-arms-r'],
   core: ['z-core'],
+  // This simplified front view uses the torso for back work as well.
+  back: ['z-core'],
   hips: ['z-hips'],
   quads: ['z-quads-l','z-quads-r'],
+  // The body map is front-facing, so use the thigh zones for hamstrings too.
+  hamstrings: ['z-quads-l','z-quads-r'],
   calves: ['z-calves-l','z-calves-r'],
 };
 
@@ -308,6 +314,7 @@ const GENERATE_PLAN = { warmup: 1, lower: 2, upper: 2, core: 2, yoga: 1, cooldow
 
 function generateWorkout() {
   muscleFilter = null;
+  activeFilter = 'all';
   const picked = [];
   Object.keys(GENERATE_PLAN).forEach(cat => {
     const pool = shuffle(EX.filter(e => e.cat === cat));
@@ -331,6 +338,9 @@ function generateWorkout() {
   });
   suggestedIds = picked.map(e => e.id);
   renderSuggestedBanner();
+  renderFilters();
+  renderChips();
+  renderZones();
   renderList();
 }
 
@@ -401,15 +411,22 @@ function selectMuscleFilter(m) {
 }
 
 function renderZones() {
-  Object.keys(ZONE_MAP).forEach(m => {
-    const worked = EX.some(e => doneState[e.id] && e.muscles.includes(m));
-    ZONE_MAP[m].forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.toggle('active', worked);
-      el.classList.toggle('selected', muscleFilter === m);
-      el.onclick = () => selectMuscleFilter(m);
+  const zoneMuscles = {};
+  Object.entries(ZONE_MAP).forEach(([muscle, zoneIds]) => {
+    zoneIds.forEach(id => {
+      (zoneMuscles[id] ||= []).push(muscle);
     });
+  });
+
+  Object.entries(zoneMuscles).forEach(([id, muscles]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const worked = EX.some(e => doneState[e.id] && e.muscles.some(m => muscles.includes(m)));
+    el.classList.toggle('active', worked);
+    el.classList.toggle('selected', muscleFilter ? muscles.includes(muscleFilter) : false);
+    // Shared thigh zones default to quads when clicked; the Hamstrings chip remains
+    // available for the more specific exercise filter.
+    el.onclick = () => selectMuscleFilter(muscles[0]);
   });
 }
 
@@ -447,6 +464,115 @@ function renderList() {
   });
 }
 
+const timerStates = new Map();
+let timerTicker = null;
+
+function formatTimer(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+function getTimerState(exercise) {
+  if (!timerStates.has(exercise.id)) {
+    timerStates.set(exercise.id, {
+      duration: exercise.timerSeconds,
+      remaining: exercise.timerSeconds,
+      running: false,
+      finished: false,
+      endsAt: null,
+    });
+  }
+  return timerStates.get(exercise.id);
+}
+
+function refreshRunningTimer(state) {
+  if (!state.running) return false;
+  state.remaining = Math.max(0, Math.ceil((state.endsAt - Date.now()) / 1000));
+  if (state.remaining > 0) return false;
+  state.running = false;
+  state.finished = true;
+  state.endsAt = null;
+  return true;
+}
+
+function timerMarkup(exercise) {
+  if (!exercise.timerSeconds) return '';
+  const state = getTimerState(exercise);
+  refreshRunningTimer(state);
+  const primaryLabel = state.running ? 'Pause' : state.finished ? 'Restart' : state.remaining < state.duration ? 'Resume' : 'Start';
+  return `
+    <div class="exercise-timer${state.finished ? ' finished' : ''}" data-timer-id="${exercise.id}">
+      <span class="timer-display" role="timer" aria-live="polite">${formatTimer(state.remaining)}</span>
+      <button type="button" class="timer-btn timer-toggle">${primaryLabel}</button>
+      <button type="button" class="timer-btn timer-reset"${state.remaining === state.duration && !state.running ? ' disabled' : ''}>Reset</button>
+    </div>
+  `;
+}
+
+function updateTimerElement(exerciseId) {
+  const exercise = EX.find(e => e.id === exerciseId);
+  const state = timerStates.get(exerciseId);
+  const el = document.querySelector(`[data-timer-id="${exerciseId}"]`);
+  if (!exercise || !state || !el) return;
+  el.classList.toggle('finished', state.finished);
+  el.querySelector('.timer-display').textContent = formatTimer(state.remaining);
+  el.querySelector('.timer-toggle').textContent = state.running ? 'Pause' : state.finished ? 'Restart' : state.remaining < state.duration ? 'Resume' : 'Start';
+  el.querySelector('.timer-reset').disabled = state.remaining === state.duration && !state.running;
+}
+
+function runTimerTicker() {
+  if (timerTicker) return;
+  timerTicker = setInterval(() => {
+    let hasRunningTimer = false;
+    timerStates.forEach((state, exerciseId) => {
+      if (!state.running) return;
+      hasRunningTimer = true;
+      const justFinished = refreshRunningTimer(state);
+      updateTimerElement(exerciseId);
+      if (justFinished) {
+        const exercise = EX.find(e => e.id === exerciseId);
+        showToast(`Timer finished — ${exercise?.name || 'exercise'}`);
+        if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
+      }
+    });
+    if (!hasRunningTimer || ![...timerStates.values()].some(state => state.running)) {
+      clearInterval(timerTicker);
+      timerTicker = null;
+    }
+  }, 250);
+}
+
+function toggleTimer(exercise) {
+  const state = getTimerState(exercise);
+  refreshRunningTimer(state);
+  if (state.running) {
+    state.running = false;
+    state.endsAt = null;
+  } else {
+    if (state.finished || state.remaining <= 0) state.remaining = state.duration;
+    state.finished = false;
+    state.running = true;
+    state.endsAt = Date.now() + state.remaining * 1000;
+    runTimerTicker();
+  }
+  updateTimerElement(exercise.id);
+}
+
+function resetTimer(exercise) {
+  const state = getTimerState(exercise);
+  state.remaining = state.duration;
+  state.running = false;
+  state.finished = false;
+  state.endsAt = null;
+  updateTimerElement(exercise.id);
+}
+
+function resetAllTimers() {
+  timerStates.clear();
+  if (timerTicker) clearInterval(timerTicker);
+  timerTicker = null;
+}
+
 function buildCard(e) {
   const card = document.createElement('div');
   card.className = 'card' + (doneState[e.id] ? ' done' : '');
@@ -465,6 +591,7 @@ function buildCard(e) {
       <div class="name">${e.name}</div>
       <div class="reps">${e.reps}</div>
       <div class="howto">${e.howto}</div>
+      ${timerMarkup(e)}
       <div class="muscle-chips">${muscleChips}</div>
     </div>
     <div class="check"><svg viewBox="0 0 24 24"><polyline points="4,13 9,18 20,6"/></svg></div>
@@ -473,11 +600,18 @@ function buildCard(e) {
     evt.stopPropagation();
     window.open(searchUrl, '_blank', 'noopener');
   });
+  const timer = card.querySelector('.exercise-timer');
+  if (timer) {
+    timer.addEventListener('click', evt => evt.stopPropagation());
+    timer.querySelector('.timer-toggle').addEventListener('click', () => toggleTimer(e));
+    timer.querySelector('.timer-reset').addEventListener('click', () => resetTimer(e));
+  }
   card.addEventListener('click', () => toggleExercise(e.id));
   return card;
 }
 
 function toggleExercise(id) {
+  if (!EX.some(e => e.id === id)) return;
   doneState[id] = !doneState[id];
   renderList();
   renderChips();
@@ -493,10 +627,15 @@ function checkCelebration() {
 }
 
 function showCelebration() {
+  showToast('🎉 Workout complete — nice work!');
+}
+
+function showToast(message) {
   const toast = document.getElementById('celebrateToast');
+  toast.textContent = message;
   toast.classList.add('show');
-  clearTimeout(showCelebration._t);
-  showCelebration._t = setTimeout(() => toast.classList.remove('show'), 2600);
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('show'), 2600);
 }
 
 const total = EX.length;
@@ -504,12 +643,32 @@ const progressText = document.getElementById('progressText');
 const streakText = document.getElementById('streakText');
 const ring = document.getElementById('ringProgress');
 const CIRC = 132;
-const todayKey = () => new Date().toISOString().slice(0,10);
+const exerciseIds = new Set(EX.map(e => e.id));
+
+function localDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function doneCount(state = doneState) {
+  return EX.reduce((count, exercise) => count + (state[exercise.id] === true ? 1 : 0), 0);
+}
+
+function normalizeDoneState(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter(([id, isDone]) => exerciseIds.has(id) && isDone === true)
+  );
+}
+
+const todayKey = () => localDateKey();
 
 let lastDoneCount = 0;
 
 function updateRing() {
-  const done = Object.values(doneState).filter(Boolean).length;
+  const done = doneCount();
   const pct = done / total;
   ring.setAttribute('stroke-dashoffset', CIRC - pct * CIRC);
   progressText.textContent = done + ' done today';
@@ -530,7 +689,7 @@ function renderWeekDots() {
   for (let i = 0; i < 7; i++) {
     const d = new Date(startOfWeek);
     d.setDate(startOfWeek.getDate() + i);
-    const key = 'workout-day-done2:' + d.toISOString().slice(0,10);
+    const key = 'workout-day-done2:' + localDateKey(d);
     const filled = kvCache[key] === 'true';
     const isToday = d.toDateString() === today.toDateString();
     html += `<span class="week-dot${filled ? ' filled' : ''}${isToday ? ' today' : ''}">${days[i]}</span>`;
@@ -560,15 +719,25 @@ function updateMotivateText(prevDone, doneCount) {
 let kvCache = {};
 
 async function initApp() {
+  const userId = currentUser?.uid;
+  resetAllTimers();
+  activeFilter = 'all';
+  suggestedIds = null;
+  muscleFilter = null;
+  lastDoneCount = 0;
+  statsPanel.style.display = 'none';
   streakText.textContent = 'Loading your streak…';
+  let loadedCache = {};
   try {
     const all = await dbGetAllKV();
-    kvCache = {};
-    all.forEach(item => { kvCache[item.key] = item.value; });
+    all.forEach(item => { loadedCache[item.key] = item.value; });
   } catch (e) {
     console.error('Failed to load your data', e);
-    kvCache = {};
   }
+  // Ignore a slow response if the signed-in account changed while loading.
+  if (!currentUser || currentUser.uid !== userId) return;
+  kvCache = loadedCache;
+  renderSuggestedBanner();
   renderFilters();
   loadState();
 }
@@ -576,7 +745,7 @@ async function initApp() {
 function loadState() {
   try {
     const raw = kvCache['checklist2:' + todayKey()];
-    doneState = raw ? JSON.parse(raw) : {};
+    doneState = normalizeDoneState(raw ? JSON.parse(raw) : {});
   } catch (e) { doneState = {}; }
   renderList();
   renderChips();
@@ -591,12 +760,17 @@ function saveState() {
   dbSet('checklist2:' + todayKey(), val).catch(e => console.error('save failed', e));
   updateRing();
 
-  const doneCount = Object.values(doneState).filter(Boolean).length;
-  if (doneCount >= 4) {
-    kvCache['workout-day-done2:' + todayKey()] = 'true';
-    dbSet('workout-day-done2:' + todayKey(), 'true').catch(() => {});
+  const completedCount = doneCount();
+  const workoutDayKey = 'workout-day-done2:' + todayKey();
+  if (completedCount >= 4) {
+    kvCache[workoutDayKey] = 'true';
+    dbSet(workoutDayKey, 'true').catch(e => console.error('streak save failed', e));
+  } else if (kvCache[workoutDayKey] !== undefined) {
+    delete kvCache[workoutDayKey];
+    dbDelete(workoutDayKey).catch(e => console.error('streak cleanup failed', e));
   }
   loadStreak();
+  if (statsPanel.style.display !== 'none') renderStats();
 }
 
 function loadStreak() {
@@ -604,7 +778,7 @@ function loadStreak() {
     let count = 0;
     const d = new Date();
     for (let i = 0; i < 400; i++) {
-      const key = 'workout-day-done2:' + d.toISOString().slice(0,10);
+      const key = 'workout-day-done2:' + localDateKey(d);
       const val = kvCache[key];
       if (val === 'true') { count++; }
       else if (i > 0) { break; }
@@ -620,9 +794,14 @@ function loadStreak() {
 
 document.getElementById('resetBtn').addEventListener('click', () => {
   doneState = {};
-  renderList(); renderChips(); renderZones(); updateRing();
-  delete kvCache['checklist2:' + todayKey()];
-  dbDelete('checklist2:' + todayKey()).catch(() => {});
+  const checklistKey = 'checklist2:' + todayKey();
+  const workoutDayKey = 'workout-day-done2:' + todayKey();
+  delete kvCache[checklistKey];
+  delete kvCache[workoutDayKey];
+  dbDelete(checklistKey).catch(e => console.error('checklist reset failed', e));
+  dbDelete(workoutDayKey).catch(e => console.error('streak reset failed', e));
+  renderList(); renderChips(); renderZones(); updateRing(); loadStreak();
+  if (statsPanel.style.display !== 'none') renderStats();
 });
 
 // ---- Stats panel ----
@@ -647,9 +826,11 @@ function renderStats() {
   dayEntries.forEach(e => {
     Object.keys(e.done).forEach(exId => {
       if (e.done[exId]) {
-        totalExercisesLogged++;
         const ex = EX.find(x => x.id === exId);
-        if (ex) ex.muscles.forEach(m => { muscleCount[m] = (muscleCount[m] || 0) + 1; });
+        if (ex) {
+          totalExercisesLogged++;
+          ex.muscles.forEach(m => { muscleCount[m] = (muscleCount[m] || 0) + 1; });
+        }
       }
     });
   });
@@ -665,7 +846,7 @@ function renderStats() {
   {
     let d = new Date();
     for (let i = 0; i < 400; i++) {
-      const key = d.toISOString().slice(0,10);
+      const key = localDateKey(d);
       if (doneDateSet.has(key)) currentStreak++;
       else if (i > 0) break;
       d.setDate(d.getDate() - 1);
@@ -690,9 +871,9 @@ function renderStats() {
     let d = new Date();
     d.setDate(d.getDate() - 69);
     for (let i = 0; i < 70; i++) {
-      const key = d.toISOString().slice(0,10);
+      const key = localDateKey(d);
       let cnt = 0;
-      try { cnt = Object.values(JSON.parse(kvCache['checklist2:' + key] || '{}')).filter(Boolean).length; } catch(e){}
+      try { cnt = doneCount(normalizeDoneState(JSON.parse(kvCache['checklist2:' + key] || '{}'))); } catch(e){}
       let lvl = 0;
       if (cnt >= 1 && cnt <= 3) lvl = 1;
       else if (cnt >= 4 && cnt <= 7) lvl = 2;

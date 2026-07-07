@@ -129,9 +129,11 @@
   }
   .chip.active { background: var(--zone-on); color: #fff; }
   .chip.selected { border-color: var(--teal); box-shadow: 0 0 0 2px rgba(63,117,102,0.15); }
-  .zone { fill: var(--zone-off); transition: fill 0.35s ease; cursor: pointer; }
+  .zone { fill: var(--zone-off); transition: fill 0.35s ease, stroke 0.35s ease; cursor: pointer; }
   .zone.active { fill: var(--zone-on); }
-  .zone.selected { stroke: var(--teal); stroke-width: 3; }
+  line.zone.active { stroke: var(--zone-on); }
+  :not(line).zone.selected { stroke: var(--teal); stroke-width: 3; }
+  line.zone.selected { filter: drop-shadow(0 0 3px var(--teal)); }
 
   /* Filter pills */
   .filters {
@@ -245,6 +247,24 @@
   .info .name { font-weight: 600; font-size: 14.5px; margin-bottom: 3px; }
   .info .reps { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 4px; }
   .info .howto { font-size: 11.5px; color: var(--ink-soft); line-height: 1.4; margin-bottom: 6px; }
+  .exercise-timer {
+    display: flex; align-items: center; gap: 6px; margin: 7px 0 8px;
+    padding: 6px 7px; width: fit-content; border-radius: 10px;
+    background: var(--bg); border: 1px solid var(--line);
+  }
+  .timer-display {
+    min-width: 42px; font-family: 'Fredoka', sans-serif; font-size: 14px;
+    font-variant-numeric: tabular-nums; color: var(--teal-deep); text-align: center;
+  }
+  .timer-btn {
+    border: none; border-radius: 8px; padding: 5px 8px; font-family: inherit;
+    font-size: 10.5px; font-weight: 700; cursor: pointer;
+    background: var(--teal); color: #fff;
+  }
+  .timer-reset { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .timer-btn:disabled { opacity: 0.45; cursor: default; }
+  .exercise-timer.finished { background: var(--done-bg); border-color: #9CC8AB; }
+  .exercise-timer.finished .timer-display { color: #267040; }
   .muscle-chips { display: flex; flex-wrap: wrap; gap: 4px; }
   .muscle-chip {
     font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
